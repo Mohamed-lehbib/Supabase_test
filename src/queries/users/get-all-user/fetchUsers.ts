@@ -20,12 +20,9 @@ import { SupabaseError } from "../../../data/props/supabaseError";
 export async function fetchUsers(name?: string, role?: string): Promise<User[]> {
     try {
         let query = supabase.from("users").select("*");
-
-        if (name && role) {
-            query = query.eq('role', role).ilike('name', `%${name}%`);
-        } else if (role) {
+        if (role) {
             query = query.eq('role', role);
-        } else if (name) {
+        } if (name) {
             query = query.ilike('name', `%${name}%`);
         }
 
