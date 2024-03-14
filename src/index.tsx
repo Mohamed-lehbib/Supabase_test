@@ -1,15 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import HomeScreen from "./pages/home/HomeScreen";
+import CreateUser from "./pages/create/CreateUser";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import UpdateUser from "./pages/update/UpdateUser";
+
+const routes = [
+  { path: "/", name: "Home", component: HomeScreen },
+  { path: "/create", name: "create", component: CreateUser },
+  { path: "/:id", name: "update", component: UpdateUser },
+];
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<route.component />}
+          />
+        ))}
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
