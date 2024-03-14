@@ -10,17 +10,20 @@ export default function CreateUserForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [file, setFile] = useState<File | undefined>(undefined); // New state for the selected file
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
+    console.log(file);
 
     try {
-      await createUser(name, email, password, role);
+      await createUser(name, email, password, role, file);
       console.log("User created successfully!");
       setName("");
       setEmail("");
       setPassword("");
       setRole("");
+      setFile(undefined); // Reset file state after submission
       navigate("/");
     } catch (error) {
       console.error("Error creating user:", (error as Error).message);
@@ -82,6 +85,22 @@ export default function CreateUserForm() {
             <option value="user">User</option>
             <option value="technician">Technician</option>
           </select>
+        </div>
+        <div>
+          <label htmlFor="file" className="block mb-1">
+            Profile Image
+          </label>
+          <input
+            type="file"
+            id="file"
+            onChange={(e) => {
+              const fileList = e.target.files;
+              if (fileList && fileList.length > 0) {
+                setFile(fileList[0]);
+              }
+            }}
+            className="border border-gray-300 rounded-md px-3 py-2 w-full"
+          />
         </div>
         <button
           type="submit"

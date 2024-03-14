@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { apiFetcher } from "../../api/api-fetcher/api-fetcher";
-import { supabase } from "../../api/config/supabase";
-import { SupabaseError } from "../../data/props/supabaseError";
 import { fetchUsers } from "../../queries/users/get-all-user/fetchUsers";
 import { deleteUser } from "../../queries/users/delete-user/deleteUser";
 
 export default function HomeScreen() {
   const [users, setUsers] = useState<User[]>([]);
   const [listlen, setListlen] = useState(users.length);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     async function fetchData() {
-      const users = await fetchUsers();
-      setUsers(users);
+      const fetchedUsers = await fetchUsers(
+        searchQuery,
+        selectedRole || undefined
+      );
+      setUsers(fetchedUsers);
     }
 
     fetchData();
-  }, [listlen]);
+  }, [searchQuery, selectedRole, listlen]);
+
+  const roles = ["admin", "user", "technician"];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -29,6 +35,27 @@ export default function HomeScreen() {
         >
           Create User
         </Link>
+      </div>
+      <div className="flex justify-between items-center mb-4">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="p-2 border border-gray-300 rounded-md"
+        />
+        <select
+          value={selectedRole || ""}
+          onChange={(e) => setSelectedRole(e.target.value || undefined)}
+          className="p-2 border border-gray-300 rounded-md"
+        >
+          <option value="">Filter by Role</option>
+          {roles.map((role, index) => (
+            <option key={index} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
       </div>
       <table className="w-full border-collapse border border-gray-300">
         <thead>
