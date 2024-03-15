@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fetchUsers } from "../../queries/users/get-all-user/fetchUsers";
 import { deleteUser } from "../../queries/users/delete-user/deleteUser";
+import { supabase, supabaseService } from "../../api/config/supabase";
 
 export default function HomeScreen() {
   const [users, setUsers] = useState<User[]>([]);
@@ -28,6 +29,25 @@ export default function HomeScreen() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-4">
+        {/* <button
+          onClick={async () => {
+            try {
+              const { data, error } =
+                await supabaseService.storage.listBuckets();
+
+              if (error) {
+                throw error;
+              }
+              console.log("data----------------------------------");
+              console.log(data);
+            } catch (error) {
+              console.error("Error in Test:", (error as Error).message);
+              throw error;
+            }
+          }}
+        >
+          test bucket
+        </button> */}
         <h1 className="text-2xl font-bold">List of Users</h1>
         <Link
           to="/create"
