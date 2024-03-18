@@ -8,4 +8,5 @@ type User = {
     role: string;
     image_id?: UUID;
     image_url?: string;
+    files?: UUID[];
   };

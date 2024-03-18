@@ -1,55 +1,31 @@
 import { supabase, supabaseService } from "../../../api/config/supabase";
-
-// export async function createUser(name: string, email: string, password: string, role: string): Promise<void> {
-//   try {
-//     const { data, error } = await supabase
-//       .from("users")
-//       .insert([{ name, email, password, role }]);
-
-//     if (error) {
-//       throw error;
-//     }
-
-//     console.log("User created successfully:", data);
-//   } catch (error) {
-//     console.error("Error creating user:", (error as Error).message);
-//     throw error;
-//   }
-// }
-
-// import { supabase } from "../../../api/config/supabase";
-// import { Storage } from '@supabase/storage';
+import { uploadUserFile } from "../upload-user-file/uploadUserFile";
+import { uploadUserImage } from "../upload-user-image/uploadUserImage";
 
 export async function createUser(
   name: string,
   email: string,
   password: string,
   role: string,
-  file?: File
+  image?: File,
+  documents?: File[]
 ): Promise<void> {
   try {
-    // Upload file to Supabase Storage if provided
-    const { v4: uuidv4 } = require("uuid");
 
     let imageId: string | null = null;
-    if (file) {
-      // const fileName = `${uuidv4()}.${file.name.split(".").pop()}`; // Generating UUID and appending file extension
-      const { data, error } = await supabaseService.storage
-        .from("profil_image")
-        .upload(`/${uuidv4()}/${file.name}`, file);
+    if(image) {
+      imageId = await uploadUserImage(image);
+    }
 
-      if (error) {
-        throw error;
-      }
-      let dataAny = data as any;
-      console.log(data);
-      imageId = dataAny?.id;
+    let listFilesDocuments: string[] | null = null;
+    if(documents && documents.length >0) {
+      listFilesDocuments = await uploadUserFile(documents);
     }
 
     // Insert user into the "users" table
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .insert([{ name, email, password, role, image_id: imageId }]);
+      .insert([{ name, email, password, role, image_id: imageId, files: listFilesDocuments }]);
 
     if (userError) {
       throw userError;

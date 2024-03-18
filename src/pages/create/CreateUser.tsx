@@ -10,34 +10,63 @@ export default function CreateUserForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
-  const [file, setFile] = useState<File | undefined>(undefined); // New state for the selected file
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined); // State for profile image file
+  const [documentFiles, setDocumentFiles] = useState<File[]>([]); // State for document files
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
-    console.log(file);
+    console.log(imageFile);
+    console.log(documentFiles);
 
     try {
-      await createUser(name, email, password, role, file);
+      // Upload profile image
+      await createUser(name, email, password, role, imageFile, documentFiles);
+
       console.log("User created successfully!");
       setName("");
       setEmail("");
       setPassword("");
       setRole("");
-      setFile(undefined); // Reset file state after submission
+      setImageFile(undefined); // Reset image file state after submission
+      setDocumentFiles([]); // Reset document files state after submission
       navigate("/");
     } catch (error) {
       console.error("Error creating user:", (error as Error).message);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
     if (fileList && fileList.length > 0) {
       const originalFileName = fileList[0].name;
       const sanitizedFileName = originalFileName.replace(/[^\w\s.-]/gi, " "); // Replace special characters with spaces
       const modifiedFile = new File([fileList[0]], sanitizedFileName);
-      setFile(modifiedFile);
+      setImageFile(modifiedFile);
     }
+  };
+
+  const handleDocumentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (fileList && fileList.length > 0) {
+      const selectedFiles: File[] = Array.from(fileList);
+      const validFiles = selectedFiles.filter(validateDocumentType);
+      if (validFiles.length === selectedFiles.length) {
+        setDocumentFiles(selectedFiles);
+      } else {
+        // Display an error message or handle invalid files here
+        console.error("Invalid file type for one or more documents.");
+      }
+    }
+  };
+
+  // Function to validate document type
+  const validateDocumentType = (file: File): boolean => {
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+    ];
+    return allowedTypes.includes(file.type);
   };
 
   return (
@@ -97,13 +126,25 @@ export default function CreateUserForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="file" className="block mb-1">
+          <label htmlFor="imageFile" className="block mb-1">
             Profile Image
           </label>
           <input
             type="file"
-            id="file"
-            onChange={handleFileChange}
+            id="imageFile"
+            onChange={handleImageFileChange}
+            className="border border-gray-300 rounded-md px-3 py-2 w-full"
+          />
+        </div>
+        <div>
+          <label htmlFor="documentFiles" className="block mb-1">
+            Document Files
+          </label>
+          <input
+            type="file"
+            id="documentFiles"
+            onChange={handleDocumentFileChange}
+            multiple // Allow multiple file selection
             className="border border-gray-300 rounded-md px-3 py-2 w-full"
           />
         </div>

@@ -1,4 +1,5 @@
 import { supabase } from "../../../api/config/supabase";
+import { User } from "../../../data/types/user";
 
 export async function fetchUser(id: string | undefined): Promise<User | null> { // I have done this because the value in use Param is of type: id: string | undefined
     try {
