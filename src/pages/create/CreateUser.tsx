@@ -30,6 +30,16 @@ export default function CreateUserForm() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (fileList && fileList.length > 0) {
+      const originalFileName = fileList[0].name;
+      const sanitizedFileName = originalFileName.replace(/[^\w\s.-]/gi, " "); // Replace special characters with spaces
+      const modifiedFile = new File([fileList[0]], sanitizedFileName);
+      setFile(modifiedFile);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">Create User</h1>
@@ -93,12 +103,7 @@ export default function CreateUserForm() {
           <input
             type="file"
             id="file"
-            onChange={(e) => {
-              const fileList = e.target.files;
-              if (fileList && fileList.length > 0) {
-                setFile(fileList[0]);
-              }
-            }}
+            onChange={handleFileChange}
             className="border border-gray-300 rounded-md px-3 py-2 w-full"
           />
         </div>

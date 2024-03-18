@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchUsers } from "../../queries/users/get-all-user/fetchUsers";
 import { deleteUser } from "../../queries/users/delete-user/deleteUser";
 import { supabase, supabaseService } from "../../api/config/supabase";
+import { User } from "../../data/types/user";
 
 export default function HomeScreen() {
   const [users, setUsers] = useState<User[]>([]);
@@ -85,6 +86,7 @@ export default function HomeScreen() {
             <th className="border border-gray-300 px-4 py-2">Email</th>
             <th className="border border-gray-300 px-4 py-2">Password</th>
             <th className="border border-gray-300 px-4 py-2">Role</th>
+            <th className="border border-gray-300 px-4 py-2">Image</th>
             <th className="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -98,6 +100,9 @@ export default function HomeScreen() {
                 {user.password}
               </td>
               <td className="border border-gray-300 px-4 py-2">{user.role}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                <img src={user.image_url} alt="User" className="w-12 h-12" />
+              </td>
               <td className="border border-gray-300 px-4 py-2">
                 <Link to={`/${user.id}`}>
                   <button className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg mr-2">

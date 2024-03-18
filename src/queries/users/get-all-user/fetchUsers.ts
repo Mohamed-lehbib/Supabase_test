@@ -1,5 +1,6 @@
-import { supabase } from "../../../api/config/supabase";
+import { supabase, supabaseService } from "../../../api/config/supabase";
 import { SupabaseError } from "../../../data/props/supabaseError";
+import { User } from "../../../data/types/user";
 
 // export async function fetchUsers():  Promise<User[]> {
 //     try {
@@ -17,24 +18,112 @@ import { SupabaseError } from "../../../data/props/supabaseError";
 //     }
 //   }
 
-export async function fetchUsers(name?: string, role?: string): Promise<User[]> {
+// export async function fetchUsers(
+//   name?: string,
+//   role?: string
+// ): Promise<User[]> {
+//   try {
+//     let query = supabase.from("users").select("*");
+//     if (role) {
+//       query = query.eq("role", role);
+//     }
+//     if (name) {
+//       query = query.ilike("name", `%${name}%`);
+//     }
+
+//     const { data: users, error } = await query;
+
+//     if (error) {
+//       throw error as SupabaseError;
+//     }
+
+//     // return users;
+
+//     for (const user of users) {
+//       const imageUUID = user.image_id;
+//       if (imageUUID) {
+//         // const fileName = `${imageUUID}.png`; // Assuming the images have a .png extension
+//         // const { data: imageUrl } = await supabase
+//         //     .storage
+//         //     .from('public-bucket')
+//         //     .getPublicUrl(fileName);
+
+//         // // Assign the imageUrl to the user
+//         // user.image_url = imageUrl;
+//         const { data: image, error } = await supabaseService
+//           .schema("storage")
+//           .from("objects")
+//           .select(`*`)
+//           .eq('id', imageUUID);
+//           console.log(image);
+//         if(image) {
+//             const imageAny = image as any;
+//             const imageName = imageAny.name
+//             console.log("Image Name: ", imageName);
+//         }
+//       }
+//     }
+//     return users;
+//   } catch (error) {
+//     console.error("Error fetching users:", (error as Error).message);
+//     return [];
+//   }
+// }
+
+export async function fetchUsers(
+    name?: string,
+    role?: string
+  ): Promise<User[]> {
     try {
-        let query = supabase.from("users").select("*");
-        if (role) {
-            query = query.eq('role', role);
-        } if (name) {
-            query = query.ilike('name', `%${name}%`);
+      let query = supabase.from("users").select("*");
+      if (role) {
+        query = query.eq("role", role);
+      }
+      if (name) {
+        query = query.ilike("name", `%${name}%`);
+      }
+  
+      const { data: users, error } = await query;
+  
+      if (error) {
+        throw error as SupabaseError;
+      }
+  
+      // Loop through users
+      for (const user of users) {
+        const imageUUID = user.image_id;
+        // if (imageUUID) {
+          // Fetch the image name
+          const { data: image, error } = await supabaseService
+          .schema("storage")
+          .from("objects")
+          .select(`*`)
+          .eq('id', imageUUID);
+          console.log(image);
+          if (error) {
+            console.error("Error fetching image:", error.message);
+          } else {
+            const file = image as any;
+            const imageName = await file[0].name;
+            console.log(`image name: ${file[0].name}`);
+            // Fetch public URL of the image
+            const { data: imageUrl} = supabaseService
+              .storage
+              .from('profil_image')
+              .getPublicUrl(imageName);
+              console.log(`image url: ${imageUrl.publicUrl}`);
+                // console.log(imageName);
+            if (imageUrl) {
+              // Assign the imageUrl to the user
+              user.image_url = imageUrl.publicUrl;
+            }
+          }
         }
-
-        const { data: users, error } = await query;
-
-        if (error) {
-            throw error as SupabaseError;
-        }
-
-        return users;
+    //   }
+      console.log(users);
+      return users;
     } catch (error) {
-        console.error("Error fetching users:", (error as Error).message);
-        return [];
+      console.error("Error fetching users:", (error as Error).message);
+      return [];
     }
-}
+  }
