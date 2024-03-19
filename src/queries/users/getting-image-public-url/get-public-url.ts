@@ -2,7 +2,12 @@ import { UUID } from "crypto";
 import { supabaseService } from "../../../api/config/supabase";
 import { User } from "../../../data/types/user";
 
-export async function getPublicUrl(fileId: UUID, bucketName: string): Promise<string | null> {
+interface FileData {
+  publicUrl: string;
+  fileName: string;
+}
+
+export async function getPublicUrl(fileId: UUID, bucketName: string): Promise<FileData | null> {
   try {
     const { data: file, error } = await supabaseService
       .schema("storage")
@@ -18,7 +23,7 @@ export async function getPublicUrl(fileId: UUID, bucketName: string): Promise<st
       .from(bucketName)
       .getPublicUrl(fileName);
     if (fileUrl) {
-      return fileUrl.publicUrl;
+      return {publicUrl: fileUrl.publicUrl, fileName};
     }
     return null;
   } catch (error: any) {

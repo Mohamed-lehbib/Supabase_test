@@ -12,20 +12,19 @@ export default function HomeScreen() {
     undefined
   );
 
+  async function fetchData() {
+    const fetchedUsers = await fetchUsers(
+      searchQuery,
+      selectedRole || undefined
+    );
+    setUsers(fetchedUsers);
+  }
   useEffect(() => {
-    async function fetchData() {
-      const fetchedUsers = await fetchUsers(
-        searchQuery,
-        selectedRole || undefined
-      );
-      setUsers(fetchedUsers);
-    }
-
     fetchData();
   }, [searchQuery, selectedRole, listlen]);
 
   const roles = ["admin", "user", "technician"];
-
+  // fetchData();
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
@@ -101,7 +100,9 @@ export default function HomeScreen() {
                             download
                             className="text-blue-500 hover:underline"
                           >
-                            Download
+                            {user.file_names
+                              ? user.file_names[index]
+                              : "doesn't have a name"}
                           </a>
                         </li>
                       ))}
