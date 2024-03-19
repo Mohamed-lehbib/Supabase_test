@@ -9,4 +9,5 @@ type User = {
     image_id?: UUID;
     image_url?: string;
     files?: UUID[];
+    files_url?: string[];
   };
