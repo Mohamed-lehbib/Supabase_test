@@ -117,7 +117,11 @@ export default function HomeScreen() {
                   </Link>
                   <button
                     className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg"
-                    onClick={() => deleteUser(user.id, setListlen)}
+                    onClick={() => {
+                      user.image_name
+                        ? deleteUser(user.id, setListlen, user.image_name)
+                        : deleteUser(user.id, setListlen);
+                    }}
                   >
                     Delete
                   </button>

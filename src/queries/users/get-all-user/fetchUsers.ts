@@ -31,6 +31,7 @@ export async function fetchUsers(
         let imageData = await getPublicUrl(imageUUID, "profil_image");
         if(imageData){
           user.image_url = imageData?.publicUrl;
+          user.image_name = imageData?.fileName;
         }
       }
 

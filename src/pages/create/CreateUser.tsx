@@ -35,15 +35,15 @@ export default function CreateUserForm() {
     }
   };
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (fileList && fileList.length > 0) {
-      const originalFileName = fileList[0].name;
-      const sanitizedFileName = originalFileName.replace(/[^\w\s.-]/gi, " "); // Replace special characters with spaces
-      const modifiedFile = new File([fileList[0]], sanitizedFileName);
-      setImageFile(modifiedFile);
-    }
-  };
+  // const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const fileList = e.target.files;
+  //   if (fileList && fileList.length > 0) {
+  //     const originalFileName = fileList[0].name;
+  //     const sanitizedFileName = originalFileName.replace(/[^\w\s.-]/gi, " "); // Replace special characters with spaces
+  //     const modifiedFile = new File([fileList[0]], sanitizedFileName);
+  //     setImageFile(modifiedFile);
+  //   }
+  // };
 
   const handleDocumentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -63,8 +63,10 @@ export default function CreateUserForm() {
   const validateDocumentType = (file: File): boolean => {
     const allowedTypes = [
       "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX (Word)
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX (Excel)
+      "application/vnd.ms-excel", // XLS (Excel)
+      "application/vnd.ms-word", // DOC (Word)
     ];
     return allowedTypes.includes(file.type);
   };
@@ -132,7 +134,10 @@ export default function CreateUserForm() {
           <input
             type="file"
             id="imageFile"
-            onChange={handleImageFileChange}
+            // onChange={handleImageFileChange}
+            onChange={(e) => {
+              e.target.files && setImageFile(e.target.files[0]);
+            }}
             className="border border-gray-300 rounded-md px-3 py-2 w-full"
           />
         </div>
