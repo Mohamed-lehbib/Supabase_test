@@ -68,6 +68,8 @@ export default function HomeScreen() {
             <th className="border border-gray-300 px-4 py-2">Password</th>
             <th className="border border-gray-300 px-4 py-2">Role</th>
             <th className="border border-gray-300 px-4 py-2">Image</th>
+            <th className="border border-gray-300 px-4 py-2">Document</th>{" "}
+            {/* New column for document */}
             <th className="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -83,6 +85,18 @@ export default function HomeScreen() {
               <td className="border border-gray-300 px-4 py-2">{user.role}</td>
               <td className="border border-gray-300 px-4 py-2">
                 <img src={user.image_url} alt="User" className="w-12 h-12" />
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {user.files_url &&
+                  user.files_url.length > 0 &&
+                  user.files_url.map((file_url, index) => (
+                    <>
+                      <a key={index} href={file_url} download>
+                        Download
+                      </a>{" "}
+                      <br />{" "}
+                    </>
+                  ))}
               </td>
               <td className="border border-gray-300 px-4 py-2">
                 <Link to={`/${user.id}`}>
