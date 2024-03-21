@@ -24,6 +24,10 @@ export default function UpdateUser() {
   //   []
   // );
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const [addedFiles, setAddedFiles] = useState<File[]>([]);
+  const [deletedFiles, setDeletedFiles] = useState<
+    { file_id: string; file_name: string }[]
+  >([]);
 
   // useEffect(() => {
   //   async function fetchData() {
@@ -83,41 +87,96 @@ export default function UpdateUser() {
   };
 
   // Function to handle file selection
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     const selectedFiles = Array.from(e.target.files);
+
+  //     // Append new files to existing files
+  //     const updatedFiles = [...files, ...selectedFiles];
+  //     setFiles(updatedFiles);
+
+  //     // Create and append previews for new selected files
+  //     const newPreviews = selectedFiles.map((file) =>
+  //       URL.createObjectURL(file)
+  //     );
+  //     const updatedPreviews = [...filePreviews, ...newPreviews];
+  //     setFilePreviews(updatedPreviews);
+
+  //     // Update and append file names
+  //     const newNames = selectedFiles.map((file) => file.name);
+  //     const updatedNames = [...fileNames, ...newNames];
+  //     setFileNames(updatedNames);
+  //   }
+  // };
+
+  // // Function to remove a file
+  // const removeFile = (index: number) => {
+  //   const updatedFiles = [...files];
+  //   updatedFiles.splice(index, 1);
+  //   setFiles(updatedFiles);
+
+  //   const updatedPreviews = [...filePreviews];
+  //   updatedPreviews.splice(index, 1);
+  //   setFilePreviews(updatedPreviews);
+
+  //   // Also remove the file name from the list
+  //   const updatedFileNames = [...fileNames];
+  //   updatedFileNames.splice(index, 1);
+  //   setFileNames(updatedFileNames); // This ensures file names are in sync with the files
+  // };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files);
-  
-      // Append new files to existing files
-      const updatedFiles = [...files, ...selectedFiles];
-      setFiles(updatedFiles);
-  
-      // Create and append previews for new selected files
-      const newPreviews = selectedFiles.map((file) => URL.createObjectURL(file));
-      const updatedPreviews = [...filePreviews, ...newPreviews];
-      setFilePreviews(updatedPreviews);
-  
-      // Update and append file names
+      setFiles((prevFiles) => [...prevFiles, ...selectedFiles] as File[]); // Ensure the return type is explicitly File[]
+      const newPreviews = selectedFiles.map((file) =>
+        URL.createObjectURL(file as Blob)
+      ); // Ensure the argument for URL.createObjectURL is typed
+      setFilePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
       const newNames = selectedFiles.map((file) => file.name);
-      const updatedNames = [...fileNames, ...newNames];
-      setFileNames(updatedNames);
+      setFileNames((prevNames) => [...prevNames, ...newNames]);
+      setAddedFiles(
+        (prevAddedFiles) => [...prevAddedFiles, ...selectedFiles] as File[]
+      ); // Ensure the return type is explicitly File[]
     }
   };
-  
 
-  // Function to remove a file
   const removeFile = (index: number) => {
+    // Directly remove the file object from the files array
     const updatedFiles = [...files];
     updatedFiles.splice(index, 1);
     setFiles(updatedFiles);
 
+    // Remove the corresponding preview
     const updatedPreviews = [...filePreviews];
+    URL.revokeObjectURL(updatedPreviews[index]); // Clean up the object URL
     updatedPreviews.splice(index, 1);
     setFilePreviews(updatedPreviews);
 
-    // Also remove the file name from the list
+    // Remove the corresponding file name
     const updatedFileNames = [...fileNames];
     updatedFileNames.splice(index, 1);
-    setFileNames(updatedFileNames); // This ensures file names are in sync with the files
+    setFileNames(updatedFileNames);
+
+    // Assuming user.files contains IDs that correspond by index to the files in the `files` array
+    // Check if the file to be removed has a corresponding ID in user.files
+    if (user && user.files && index < user.files.length) {
+      const fileIdToRemove = user.files[index];
+
+      // Assuming fileIdToRemove is the ID string you need
+      const removedFile = {
+        file_id: fileIdToRemove, // Use the ID from user.files
+        file_name: fileNames[index], // Use the name from the fileNames array for reference
+      };
+      setDeletedFiles((prevDeletedFiles) => [...prevDeletedFiles, removedFile]);
+
+      // Optionally, if you need to also update user.files to reflect the removal
+      // This step depends on how you want to handle this state and when it gets synced with the server
+      const updatedUserFiles = user.files.filter((_, idx) => idx !== index);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, files: updatedUserFiles } : null
+      );
+    }
   };
 
   // Function to handle form submission
@@ -137,27 +196,31 @@ export default function UpdateUser() {
 
         // Upload or update user's image
         if (image) {
+          console.log(`added Image: ${addedFiles}`);
+          console.log(addedFiles);
           // Call updateUser with the updated user object and the image file
-          await updateUser(updatedUser, image);
+          await updateUser(updatedUser, addedFiles, deletedFiles, image);
         } else {
           // Call updateUser with only the updated user object
-          await updateUser(updatedUser);
+          console.log(`added Image: ${addedFiles}`);
+          console.log(addedFiles);
+          await updateUser(updatedUser, addedFiles, deletedFiles);
         }
 
         // Upload or update user's files
-        if (files.length > 0) {
-          // Upload files and get their URLs
-          const fileUrls = await Promise.all(
-            files.map((file) => uploadUserImage(file))
-          );
-          // // Add file URLs to user object
-          // updatedUser.files = fileUrls.map((url, index) => ({
-          //   name: files[index].name,
-          //   url: url || "", // Ensure the URL is not null
-          // }));
-          // Call updateUser with the updated user object
-          await updateUser(updatedUser);
-        }
+        // if (files.length > 0) {
+        //   // Upload files and get their URLs
+        //   const fileUrls = await Promise.all(
+        //     files.map((file) => uploadUserImage(file))
+        //   );
+        // // Add file URLs to user object
+        // updatedUser.files = fileUrls.map((url, index) => ({
+        //   name: files[index].name,
+        //   url: url || "", // Ensure the URL is not null
+        // }));
+        // Call updateUser with the updated user object
+        // await updateUser(updatedUser);
+        // }
 
         console.log("User updated successfully!");
         navigate("/");
