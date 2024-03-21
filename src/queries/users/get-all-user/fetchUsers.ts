@@ -1,7 +1,7 @@
 import { supabase } from "../../../api/config/supabase";
 import { SupabaseError } from "../../../data/props/supabaseError";
 import { User } from "../../../data/types/user";
-import { getPublicUrl } from "../getting-image-public-url/get-public-url";
+import { getPublicUrl } from "../getting-public-url/get-public-url";
 
 export async function fetchUsers(
   name?: string,
@@ -49,9 +49,9 @@ export async function fetchUsers(
           }
         }
       }
-      console.log(`file Name: ${user.file_names}`);
+      // console.log(`file Name: ${user.file_names}`);
     }
-    console.log(users);
+    // console.log(users);
     return users;
   } catch (error) {
     console.error("Error fetching users:", (error as Error).message);
